@@ -16,17 +16,21 @@
 package com.datastax.driver.core;
 
 import com.datastax.driver.core.Host.State;
+import com.datastax.driver.core.exceptions.AuthenticationException;
 import com.datastax.driver.core.policies.ConstantReconnectionPolicy;
 import com.datastax.driver.core.policies.DelegatingLoadBalancingPolicy;
 import com.datastax.driver.core.policies.LoadBalancingPolicy;
 import com.datastax.driver.core.policies.RoundRobinPolicy;
+import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
@@ -307,7 +311,7 @@ public class ReconnectionTest {
         }
 
         @Override
-        public Authenticator newAuthenticator(InetSocketAddress host, String authenticator) {
+        public Authenticator newAuthenticator(SocketAddress host, String authenticator) {
             count.incrementAndGet();
             return super.newAuthenticator(host, authenticator);
         }

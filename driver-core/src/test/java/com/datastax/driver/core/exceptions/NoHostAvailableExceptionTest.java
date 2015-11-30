@@ -20,6 +20,7 @@ import org.testng.annotations.Test;
 
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,8 +67,8 @@ public class NoHostAvailableExceptionTest {
         assertThat(message).contains("/127.0.0.2:9042\nmock stack trace 2\n");
     }
 
-    private static Map<InetSocketAddress, Throwable> buildMockErrors(int count) {
-        Map<InetSocketAddress, Throwable> errors = Maps.newHashMap();
+    private static Map<SocketAddress, Throwable> buildMockErrors(int count) {
+        Map<SocketAddress, Throwable> errors = Maps.newHashMap();
         for (int i = 1; i <= count; i++) {
             errors.put(new InetSocketAddress("127.0.0." + i, 9042), new MockError(i));
         }

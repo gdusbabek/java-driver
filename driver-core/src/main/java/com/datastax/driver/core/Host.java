@@ -15,13 +15,17 @@
  */
 package com.datastax.driver.core;
 
+import com.datastax.driver.core.utils.Hosts;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
+import io.netty.channel.unix.DomainSocketAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
@@ -37,8 +41,8 @@ public class Host {
 
     static final Logger statesLogger = LoggerFactory.getLogger(Host.class.getName() + ".STATES");
 
-    private final InetSocketAddress address;
-
+    private final SocketAddress address;
+    
     enum State {ADDED, DOWN, UP}
 
     volatile State state;
@@ -70,7 +74,7 @@ public class Host {
     // ClusterMetadata keeps one Host object per inet address and we rely on this (more precisely,
     // we rely on the fact that we can use Object equality as a valid equality), so don't use
     // that constructor but ClusterMetadata.getHost instead.
-    Host(InetSocketAddress address, ConvictionPolicy.Factory convictionPolicyFactory, Cluster.Manager manager) {
+    Host(SocketAddress address, ConvictionPolicy.Factory convictionPolicyFactory, Cluster.Manager manager) {
         if (address == null || convictionPolicyFactory == null)
             throw new NullPointerException();
 
@@ -98,16 +102,24 @@ public class Host {
             logger.warn("Error parsing Cassandra version {}. This shouldn't have happened", cassandraVersion);
         }
     }
+    
+    public boolean isInet() {
+        return InetSocketAddress.class.isAssignableFrom(getSocketAddress().getClass());
+    }
+    
+    public boolean isDomain() {
+        return DomainSocketAddress.class.isAssignableFrom(getSocketAddress().getClass());
+    }
 
     /**
      * Returns the node address.
      * <p/>
-     * This is a shortcut for {@code getSocketAddress().getAddress()}.
+     * In most cases, his is a shortcut for {@code getSocketAddress().getAddress()}.
      *
      * @return the node {@link InetAddress}.
      */
-    public InetAddress getAddress() {
-        return address.getAddress();
+    public String getAddress() {
+        return Hosts.toString(getSocketAddress());
     }
 
     /**
@@ -115,7 +127,7 @@ public class Host {
      *
      * @return the node {@link InetSocketAddress}.
      */
-    public InetSocketAddress getSocketAddress() {
+    public SocketAddress getSocketAddress() {
         return address;
     }
 

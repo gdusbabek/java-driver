@@ -15,8 +15,10 @@
  */
 package com.datastax.driver.core.exceptions;
 
+import com.datastax.driver.core.utils.Hosts;
+
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * Error during the execution of a function.
@@ -25,14 +27,14 @@ public class FunctionExecutionException extends QueryExecutionException implemen
 
     private static final long serialVersionUID = 0;
 
-    private final InetSocketAddress address;
+    private final SocketAddress address;
 
-    public FunctionExecutionException(InetSocketAddress address, String msg) {
+    public FunctionExecutionException(SocketAddress address, String msg) {
         super(msg);
         this.address = address;
     }
 
-    private FunctionExecutionException(InetSocketAddress address, String msg, Throwable cause) {
+    private FunctionExecutionException(SocketAddress address, String msg, Throwable cause) {
         super(msg, cause);
         this.address = address;
     }
@@ -42,14 +44,14 @@ public class FunctionExecutionException extends QueryExecutionException implemen
      */
     @Override
     public InetAddress getHost() {
-        return address.getAddress();
+        return Hosts.getHost(getAddress());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public InetSocketAddress getAddress() {
+    public SocketAddress getAddress() {
         return address;
     }
 

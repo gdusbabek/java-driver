@@ -18,7 +18,8 @@ package com.datastax.driver.core.exceptions;
 import com.datastax.driver.core.ConsistencyLevel;
 import com.datastax.driver.core.WriteType;
 
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.net.SocketAddress;
 
 /**
  * A Cassandra timeout during a write query.
@@ -37,7 +38,7 @@ public class WriteTimeoutException extends QueryConsistencyException {
         this(null, consistency, writeType, received, required);
     }
 
-    public WriteTimeoutException(InetSocketAddress address, ConsistencyLevel consistency, WriteType writeType, int received, int required) {
+    public WriteTimeoutException(SocketAddress address, ConsistencyLevel consistency, WriteType writeType, int received, int required) {
         super(
                 address,
                 String.format("Cassandra timeout during write query at consistency %s (%d replica were required but only %d acknowledged the write)", consistency, required, received),
@@ -47,7 +48,7 @@ public class WriteTimeoutException extends QueryConsistencyException {
         this.writeType = writeType;
     }
 
-    private WriteTimeoutException(InetSocketAddress address, String msg, Throwable cause, ConsistencyLevel consistency, WriteType writeType, int received, int required) {
+    private WriteTimeoutException(SocketAddress address, String msg, Throwable cause, ConsistencyLevel consistency, WriteType writeType, int received, int required) {
         super(address, msg, cause, consistency, received, required);
         this.writeType = writeType;
     }
@@ -89,7 +90,7 @@ public class WriteTimeoutException extends QueryConsistencyException {
      * @param address The full address of the host that caused this exception to be thrown.
      * @return a copy/clone of this exception, but with the given host address instead of the original one.
      */
-    public WriteTimeoutException copy(InetSocketAddress address) {
+    public WriteTimeoutException copy(SocketAddress address) {
         return new WriteTimeoutException(
                 address,
                 getMessage(),

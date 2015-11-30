@@ -21,7 +21,7 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,7 +39,7 @@ public class Metadata {
     final Cluster.Manager cluster;
     volatile String clusterName;
     volatile String partitioner;
-    private final ConcurrentMap<InetSocketAddress, Host> hosts = new ConcurrentHashMap<InetSocketAddress, Host>();
+    private final ConcurrentMap<SocketAddress, Host> hosts = new ConcurrentHashMap<SocketAddress, Host>();
     final ConcurrentMap<String, KeyspaceMetadata> keyspaces = new ConcurrentHashMap<String, KeyspaceMetadata>();
     volatile TokenMap tokenMap;
 
@@ -70,7 +70,7 @@ public class Metadata {
         }
     }
 
-    Host newHost(InetSocketAddress address) {
+    Host newHost(SocketAddress address) {
         return new Host(address, cluster.convictionPolicyFactory, cluster);
     }
 
@@ -78,8 +78,8 @@ public class Metadata {
         Host previous = hosts.putIfAbsent(host.getSocketAddress(), host);
         return previous == null ? host : null;
     }
-
-    Host add(InetSocketAddress address) {
+    
+    Host add(SocketAddress address) {
         return addIfAbsent(newHost(address));
     }
 
@@ -87,7 +87,7 @@ public class Metadata {
         return hosts.remove(host.getSocketAddress()) != null;
     }
 
-    Host getHost(InetSocketAddress address) {
+    Host getHost(SocketAddress address) {
         return hosts.get(address);
     }
 

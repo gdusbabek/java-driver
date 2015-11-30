@@ -15,8 +15,10 @@
  */
 package com.datastax.driver.core.exceptions;
 
+import com.datastax.driver.core.utils.Hosts;
+
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * Exception thrown when a query attempts to create a keyspace or table that already exists.
@@ -25,7 +27,7 @@ public class AlreadyExistsException extends QueryValidationException implements 
 
     private static final long serialVersionUID = 0;
 
-    private final InetSocketAddress address;
+    private final SocketAddress address;
     private final String keyspace;
     private final String table;
 
@@ -33,14 +35,14 @@ public class AlreadyExistsException extends QueryValidationException implements 
         this(null, keyspace, table);
     }
 
-    public AlreadyExistsException(InetSocketAddress address, String keyspace, String table) {
+    public AlreadyExistsException(SocketAddress address, String keyspace, String table) {
         super(makeMsg(keyspace, table));
         this.address = address;
         this.keyspace = keyspace;
         this.table = table;
     }
 
-    private AlreadyExistsException(InetSocketAddress address, String msg, Throwable cause, String keyspace, String table) {
+    private AlreadyExistsException(SocketAddress address, String msg, Throwable cause, String keyspace, String table) {
         super(msg, cause);
         this.address = address;
         this.keyspace = keyspace;
@@ -59,14 +61,14 @@ public class AlreadyExistsException extends QueryValidationException implements 
      */
     @Override
     public InetAddress getHost() {
-        return address.getAddress();
+        return Hosts.getHost(getAddress());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public InetSocketAddress getAddress() {
+    public SocketAddress getAddress() {
         return address;
     }
 
@@ -126,7 +128,7 @@ public class AlreadyExistsException extends QueryValidationException implements 
      * @param address The full address of the host that caused this exception to be thrown.
      * @return a copy/clone of this exception, but with the given host address instead of the original one.
      */
-    public AlreadyExistsException copy(InetSocketAddress address) {
+    public AlreadyExistsException copy(SocketAddress address) {
         return new AlreadyExistsException(address, getMessage(), this, keyspace, table);
     }
 

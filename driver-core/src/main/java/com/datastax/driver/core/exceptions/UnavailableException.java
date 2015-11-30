@@ -16,9 +16,10 @@
 package com.datastax.driver.core.exceptions;
 
 import com.datastax.driver.core.ConsistencyLevel;
+import com.datastax.driver.core.utils.Hosts;
 
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * Exception thrown when the coordinator knows there is not enough replicas
@@ -28,7 +29,7 @@ public class UnavailableException extends QueryExecutionException implements Coo
 
     private static final long serialVersionUID = 0;
 
-    private final InetSocketAddress address;
+    private final SocketAddress address;
     private final ConsistencyLevel consistency;
     private final int required;
     private final int alive;
@@ -41,7 +42,7 @@ public class UnavailableException extends QueryExecutionException implements Coo
         this(null, consistency, required, alive);
     }
 
-    public UnavailableException(InetSocketAddress address, ConsistencyLevel consistency, int required, int alive) {
+    public UnavailableException(SocketAddress address, ConsistencyLevel consistency, int required, int alive) {
         super(String.format("Not enough replicas available for query at consistency %s (%d required but only %d alive)", consistency, required, alive));
         this.address = address;
         this.consistency = consistency;
@@ -49,7 +50,7 @@ public class UnavailableException extends QueryExecutionException implements Coo
         this.alive = alive;
     }
 
-    private UnavailableException(InetSocketAddress address, String message, Throwable cause, ConsistencyLevel consistency, int required, int alive) {
+    private UnavailableException(SocketAddress address, String message, Throwable cause, ConsistencyLevel consistency, int required, int alive) {
         super(message, cause);
         this.address = address;
         this.consistency = consistency;
@@ -93,14 +94,14 @@ public class UnavailableException extends QueryExecutionException implements Coo
      */
     @Override
     public InetAddress getHost() {
-        return address.getAddress();
+        return Hosts.getHost(getAddress());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public InetSocketAddress getAddress() {
+    public SocketAddress getAddress() {
         return address;
     }
 
@@ -124,7 +125,7 @@ public class UnavailableException extends QueryExecutionException implements Coo
      * @param address The full address of the host that caused this exception to be thrown.
      * @return a copy/clone of this exception, but with the given host address instead of the original one.
      */
-    public UnavailableException copy(InetSocketAddress address) {
+    public UnavailableException copy(SocketAddress address) {
         return new UnavailableException(address, getMessage(), this, consistency, required, alive);
     }
 }

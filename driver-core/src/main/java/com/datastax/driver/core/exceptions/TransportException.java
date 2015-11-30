@@ -15,7 +15,7 @@
  */
 package com.datastax.driver.core.exceptions;
 
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * A connection exception that has to do with the transport itself, i.e. that
@@ -24,12 +24,12 @@ import java.net.InetSocketAddress;
 public class TransportException extends ConnectionException {
 
     private static final long serialVersionUID = 0;
-
-    public TransportException(InetSocketAddress address, String msg, Throwable cause) {
+    
+    public TransportException(SocketAddress address, String msg, Throwable cause) {
         super(address, msg, cause);
     }
 
-    public TransportException(InetSocketAddress address, String msg) {
+    public TransportException(SocketAddress address, String msg) {
         super(address, msg);
     }
 

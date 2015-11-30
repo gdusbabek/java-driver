@@ -37,7 +37,7 @@ import static org.testng.Assert.fail;
 public class QueryTracker {
     static final String QUERY = "select * from test.foo";
 
-    Map<InetAddress, Integer> coordinators = Maps.newConcurrentHashMap();
+    Map<String, Integer> coordinators = Maps.newConcurrentHashMap();
 
     public void query(Session session, int times) {
         query(session, times, ConsistencyLevel.ONE);
@@ -70,7 +70,7 @@ public class QueryTracker {
         try {
             List<ResultSet> results = Uninterruptibles.getUninterruptibly(Futures.allAsList(futures), 1, TimeUnit.MINUTES);
             for (ResultSet result : results) {
-                InetAddress coordinator = result.getExecutionInfo().getQueriedHost().getAddress();
+                String coordinator = result.getExecutionInfo().getQueriedHost().getAddress();
                 Integer n = coordinators.get(coordinator);
                 coordinators.put(coordinator, n == null ? 1 : n + 1);
             }
@@ -89,7 +89,7 @@ public class QueryTracker {
     public int queryCount(ScassandraCluster sCluster, int dc, int node) {
         try {
             String host = sCluster.address(dc, node);
-            Integer queried = coordinators.get(InetAddress.getByName(host));
+            Integer queried = coordinators.get(host);
             return queried != null ? queried : 0;
         } catch (Exception e) {
             throw new RuntimeException(e);

@@ -15,8 +15,10 @@
  */
 package com.datastax.driver.core.exceptions;
 
+import com.datastax.driver.core.utils.Hosts;
+
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * Indicates that the contacted host reported itself being overloaded.
@@ -25,9 +27,9 @@ public class OverloadedException extends QueryExecutionException implements Coor
 
     private static final long serialVersionUID = 0;
 
-    private final InetSocketAddress address;
+    private final SocketAddress address;
 
-    public OverloadedException(InetSocketAddress address, String message) {
+    public OverloadedException(SocketAddress address, String message) {
         super(String.format("Queried host (%s) was overloaded: %s", address, message));
         this.address = address;
     }
@@ -35,7 +37,7 @@ public class OverloadedException extends QueryExecutionException implements Coor
     /**
      * Private constructor used solely when copying exceptions.
      */
-    private OverloadedException(InetSocketAddress address, String message, OverloadedException cause) {
+    private OverloadedException(SocketAddress address, String message, OverloadedException cause) {
         super(message, cause);
         this.address = address;
     }
@@ -45,14 +47,14 @@ public class OverloadedException extends QueryExecutionException implements Coor
      */
     @Override
     public InetAddress getHost() {
-        return address.getAddress();
+        return Hosts.getHost(getAddress());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public InetSocketAddress getAddress() {
+    public SocketAddress getAddress() {
         return address;
     }
 

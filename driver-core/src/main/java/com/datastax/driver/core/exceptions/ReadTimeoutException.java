@@ -17,7 +17,7 @@ package com.datastax.driver.core.exceptions;
 
 import com.datastax.driver.core.ConsistencyLevel;
 
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * A Cassandra timeout during a read query.
@@ -36,7 +36,7 @@ public class ReadTimeoutException extends QueryConsistencyException {
         this(null, consistency, received, required, dataPresent);
     }
 
-    public ReadTimeoutException(InetSocketAddress address, ConsistencyLevel consistency, int received, int required, boolean dataPresent) {
+    public ReadTimeoutException(SocketAddress address, ConsistencyLevel consistency, int received, int required, boolean dataPresent) {
         super(
                 address,
                 String.format("Cassandra timeout during read query at consistency %s (%s)", consistency, formatDetails(received, required, dataPresent)),
@@ -47,7 +47,7 @@ public class ReadTimeoutException extends QueryConsistencyException {
         this.dataPresent = dataPresent;
     }
 
-    private ReadTimeoutException(InetSocketAddress address, String msg, Throwable cause, ConsistencyLevel consistency, int received, int required, boolean dataPresent) {
+    private ReadTimeoutException(SocketAddress address, String msg, Throwable cause, ConsistencyLevel consistency, int received, int required, boolean dataPresent) {
         super(address, msg, cause, consistency, received, required);
         this.dataPresent = dataPresent;
     }
@@ -104,7 +104,7 @@ public class ReadTimeoutException extends QueryConsistencyException {
      * @param address The full address of the host that caused this exception to be thrown.
      * @return a copy/clone of this exception, but with the given host address instead of the original one.
      */
-    public ReadTimeoutException copy(InetSocketAddress address) {
+    public ReadTimeoutException copy(SocketAddress address) {
         return new ReadTimeoutException(
                 address,
                 getMessage(),

@@ -19,6 +19,7 @@ import com.datastax.driver.core.exceptions.AuthenticationException;
 import com.datastax.driver.core.exceptions.ConnectionException;
 import com.datastax.driver.core.exceptions.UnsupportedProtocolVersionException;
 import com.datastax.driver.core.policies.ReconnectionPolicy;
+import com.datastax.driver.core.utils.Hosts;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.AbstractFuture;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -174,7 +175,7 @@ abstract class AbstractReconnectionHandler implements Runnable {
             if (onClusterNameMismatchException(e, nextDelay)) {
                 reschedule(nextDelay);
             } else {
-                logger.error("Retries against {} have been suspended. It won't be retried unless the node is restarted.", e.address.getAddress());
+                logger.error("Retries against {} have been suspended. It won't be retried unless the node is restarted.", Hosts.getHost(e.address));
                 currentAttempt.compareAndSet(handlerFuture, null);
             }
         } catch (Exception e) {

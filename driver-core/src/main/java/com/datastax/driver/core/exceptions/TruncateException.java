@@ -15,8 +15,10 @@
  */
 package com.datastax.driver.core.exceptions;
 
+import com.datastax.driver.core.utils.Hosts;
+
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * Error during a truncation operation.
@@ -25,7 +27,7 @@ public class TruncateException extends QueryExecutionException implements Coordi
 
     private static final long serialVersionUID = 0;
 
-    private final InetSocketAddress address;
+    private final SocketAddress address;
 
     /**
      * @deprecated This constructor is kept for backwards compatibility.
@@ -35,12 +37,12 @@ public class TruncateException extends QueryExecutionException implements Coordi
         this(null, msg);
     }
 
-    public TruncateException(InetSocketAddress address, String msg) {
+    public TruncateException(SocketAddress address, String msg) {
         super(msg);
         this.address = address;
     }
 
-    private TruncateException(InetSocketAddress address, String msg, Throwable cause) {
+    private TruncateException(SocketAddress address, String msg, Throwable cause) {
         super(msg, cause);
         this.address = address;
     }
@@ -50,14 +52,14 @@ public class TruncateException extends QueryExecutionException implements Coordi
      */
     @Override
     public InetAddress getHost() {
-        return address.getAddress();
+        return Hosts.getHost(getAddress());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public InetSocketAddress getAddress() {
+    public SocketAddress getAddress() {
         return address;
     }
 

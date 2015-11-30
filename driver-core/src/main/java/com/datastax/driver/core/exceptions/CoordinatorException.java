@@ -16,7 +16,7 @@
 package com.datastax.driver.core.exceptions;
 
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * An interface for exceptions that are able to report the address of the coordinator host
@@ -24,6 +24,7 @@ import java.net.InetSocketAddress;
  */
 public interface CoordinatorException {
 
+    /** todo: examine the necessity of this method */
     /**
      * The coordinator host that was contacted.
      * <p/>
@@ -40,5 +41,5 @@ public interface CoordinatorException {
      * @return the full address of the coordinator host that was contacted;
      * may be {@code null} if the coordinator is not known.
      */
-    InetSocketAddress getAddress();
+    SocketAddress getAddress();
 }

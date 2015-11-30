@@ -15,8 +15,10 @@
  */
 package com.datastax.driver.core.exceptions;
 
+import com.datastax.driver.core.utils.Hosts;
+
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * Indicates that the contacted host reported an internal error.
@@ -26,9 +28,9 @@ public class ServerError extends DriverInternalError implements CoordinatorExcep
 
     private static final long serialVersionUID = 0;
 
-    private final InetSocketAddress address;
+    private final SocketAddress address;
 
-    public ServerError(InetSocketAddress address, String message) {
+    public ServerError(SocketAddress address, String message) {
         super(String.format("An unexpected error occurred server side on %s: %s", address, message));
         this.address = address;
     }
@@ -36,7 +38,7 @@ public class ServerError extends DriverInternalError implements CoordinatorExcep
     /**
      * Private constructor used solely when copying exceptions.
      */
-    private ServerError(InetSocketAddress address, String message, ServerError cause) {
+    private ServerError(SocketAddress address, String message, ServerError cause) {
         super(message, cause);
         this.address = address;
     }
@@ -47,14 +49,14 @@ public class ServerError extends DriverInternalError implements CoordinatorExcep
      */
     @Override
     public InetAddress getHost() {
-        return address.getAddress();
+        return Hosts.getHost(getAddress());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public InetSocketAddress getAddress() {
+    public SocketAddress getAddress() {
         return address;
     }
 

@@ -17,7 +17,7 @@ package com.datastax.driver.core.exceptions;
 
 import com.datastax.driver.core.ConsistencyLevel;
 
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * A non-timeout error during a read query.
@@ -38,7 +38,7 @@ public class ReadFailureException extends QueryConsistencyException {
         this(null, consistency, received, required, failed, dataPresent);
     }
 
-    public ReadFailureException(InetSocketAddress address, ConsistencyLevel consistency, int received, int required, int failed, boolean dataPresent) {
+    public ReadFailureException(SocketAddress address, ConsistencyLevel consistency, int received, int required, int failed, boolean dataPresent) {
         super(address, String.format("Cassandra failure during read query at consistency %s "
                                 + "(%d responses were required but only %d replica responded, %d failed)",
                         consistency, required, received, failed),
@@ -49,7 +49,7 @@ public class ReadFailureException extends QueryConsistencyException {
         this.dataPresent = dataPresent;
     }
 
-    private ReadFailureException(InetSocketAddress address, String msg, Throwable cause, ConsistencyLevel consistency, int received, int required, int failed, boolean dataPresent) {
+    private ReadFailureException(SocketAddress address, String msg, Throwable cause, ConsistencyLevel consistency, int received, int required, int failed, boolean dataPresent) {
         super(address, msg, cause, consistency, received, required);
         this.failed = failed;
         this.dataPresent = dataPresent;
@@ -85,7 +85,7 @@ public class ReadFailureException extends QueryConsistencyException {
                 getRequiredAcknowledgements(), getFailures(), wasDataRetrieved());
     }
 
-    public ReadFailureException copy(InetSocketAddress address) {
+    public ReadFailureException copy(SocketAddress address) {
         return new ReadFailureException(
                 address,
                 getMessage(),

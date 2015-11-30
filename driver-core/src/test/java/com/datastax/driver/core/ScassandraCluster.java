@@ -121,7 +121,7 @@ public class ScassandraCluster {
     public Host host(Cluster cluster, int dc, int node) {
         String address = address(dc, node);
         for (Host host : cluster.getMetadata().getAllHosts()) {
-            if (host.getAddress().getHostAddress().equals(address)) {
+            if (host.getAddress().equals(address)) {
                 return host;
             }
         }

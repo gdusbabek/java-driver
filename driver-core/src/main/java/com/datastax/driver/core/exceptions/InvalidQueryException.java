@@ -15,8 +15,10 @@
  */
 package com.datastax.driver.core.exceptions;
 
+import com.datastax.driver.core.utils.Hosts;
+
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * Indicates a syntactically correct but invalid query.
@@ -25,13 +27,13 @@ public class InvalidQueryException extends QueryValidationException implements C
 
     private static final long serialVersionUID = 0;
 
-    private final InetSocketAddress address;
+    private final SocketAddress address;
 
     public InvalidQueryException(String msg) {
         this(null, msg);
     }
 
-    public InvalidQueryException(InetSocketAddress address, String msg) {
+    public InvalidQueryException(SocketAddress address, String msg) {
         super(msg);
         this.address = address;
     }
@@ -40,7 +42,7 @@ public class InvalidQueryException extends QueryValidationException implements C
         this(null, msg, cause);
     }
 
-    public InvalidQueryException(InetSocketAddress address, String msg, Throwable cause) {
+    public InvalidQueryException(SocketAddress address, String msg, Throwable cause) {
         super(msg, cause);
         this.address = address;
     }
@@ -52,11 +54,11 @@ public class InvalidQueryException extends QueryValidationException implements C
 
     @Override
     public InetAddress getHost() {
-        return address != null ? address.getAddress() : null;
+        return getAddress() != null ? Hosts.getHost(getAddress()) : null;
     }
 
     @Override
-    public InetSocketAddress getAddress() {
+    public SocketAddress getAddress() {
         return address;
     }
 }

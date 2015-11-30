@@ -16,9 +16,10 @@
 package com.datastax.driver.core.exceptions;
 
 import com.datastax.driver.core.ProtocolVersion;
+import com.datastax.driver.core.utils.Hosts;
 
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * Indicates that we've attempted to connect to a Cassandra node with a protocol version
@@ -28,20 +29,20 @@ public class UnsupportedProtocolVersionException extends DriverException impleme
 
     private static final long serialVersionUID = 0;
 
-    private final InetSocketAddress address;
+    private final SocketAddress address;
 
     private final ProtocolVersion unsupportedVersion;
 
     private final ProtocolVersion serverVersion;
 
-    public UnsupportedProtocolVersionException(InetSocketAddress address, ProtocolVersion unsupportedVersion, ProtocolVersion serverVersion) {
+    public UnsupportedProtocolVersionException(SocketAddress address, ProtocolVersion unsupportedVersion, ProtocolVersion serverVersion) {
         super(String.format("[%s] Host does not support protocol version %s but %s", address, unsupportedVersion, serverVersion));
         this.address = address;
         this.unsupportedVersion = unsupportedVersion;
         this.serverVersion = serverVersion;
     }
 
-    public UnsupportedProtocolVersionException(InetSocketAddress address, ProtocolVersion unsupportedVersion, ProtocolVersion serverVersion, Throwable cause) {
+    public UnsupportedProtocolVersionException(SocketAddress address, ProtocolVersion unsupportedVersion, ProtocolVersion serverVersion, Throwable cause) {
         super(String.format("[%s] Host does not support protocol version %s but %s", address, unsupportedVersion, serverVersion), cause);
         this.address = address;
         this.unsupportedVersion = unsupportedVersion;
@@ -50,11 +51,11 @@ public class UnsupportedProtocolVersionException extends DriverException impleme
 
     @Override
     public InetAddress getHost() {
-        return address.getAddress();
+        return Hosts.getHost(getAddress());
     }
 
     @Override
-    public InetSocketAddress getAddress() {
+    public SocketAddress getAddress() {
         return address;
     }
 

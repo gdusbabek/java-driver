@@ -17,7 +17,9 @@ package com.datastax.driver.core;
 
 import com.datastax.driver.core.policies.LoadBalancingPolicy;
 import com.google.common.primitives.UnsignedBytes;
+import io.netty.channel.unix.DomainSocketAddress;
 
+import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -30,16 +32,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
  */
 public class SortingLoadBalancingPolicy implements LoadBalancingPolicy {
 
-    final SortedSet<Host> hosts = new ConcurrentSkipListSet<Host>(new Comparator<Host>() {
-        @Override
-        public int compare(Host host1, Host host2) {
-            byte[] address1 = host1.getAddress().getAddress();
-            byte[] address2 = host2.getAddress().getAddress();
-            return UnsignedBytes.compare(
-                    address1[address1.length - 1],
-                    address2[address2.length - 1]);
-        }
-    });
+    final SortedSet<Host> hosts = new ConcurrentSkipListSet<Host>(HostComparator);
 
     @Override
     public void init(Cluster cluster, Collection<Host> hosts) {
@@ -78,4 +71,43 @@ public class SortingLoadBalancingPolicy implements LoadBalancingPolicy {
 
     @Override
     public void close() {/*nothing to do*/}
+    
+    private static final Comparator<Host> HostComparator = new Comparator<Host>() {
+        @Override
+        public int compare(Host host1, Host host2) {
+            if (host1.isInet() && host2.isInet()) {
+                return InetComparator.compare(
+                        (InetSocketAddress)host1.getSocketAddress(),
+                        (InetSocketAddress)host2.getSocketAddress());
+            } else if (host1.isDomain() && host2.isDomain()) {
+                return DomainComparator.compare(
+                        (DomainSocketAddress)host1.getSocketAddress(),
+                        (DomainSocketAddress)host2.getSocketAddress());
+            } if (host1.isInet()) {
+                // inet first, 
+                return -1;
+            } else {
+                // domain second.
+                return 1;
+            }
+        }
+    };
+    
+    private static final Comparator<InetSocketAddress> InetComparator = new Comparator<InetSocketAddress>() {
+        @Override
+        public int compare(InetSocketAddress host1, InetSocketAddress host2) {
+            byte[] address1 = host1.getAddress().getAddress();
+            byte[] address2 = host2.getAddress().getAddress();
+            return UnsignedBytes.compare(
+                    address1[address1.length - 1],
+                    address2[address2.length - 1]);
+        }
+    };
+    
+    private static final Comparator<DomainSocketAddress> DomainComparator = new Comparator<DomainSocketAddress>() {
+        @Override
+        public int compare(DomainSocketAddress host1, DomainSocketAddress host2) {
+            return host1.path().compareTo(host2.path());
+        }
+    };
 }

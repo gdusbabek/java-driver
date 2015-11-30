@@ -15,8 +15,10 @@
  */
 package com.datastax.driver.core.exceptions;
 
+import com.datastax.driver.core.utils.Hosts;
+
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * Indicates that the contacted host was bootstrapping when it received a read query.
@@ -25,9 +27,9 @@ public class BootstrappingException extends QueryExecutionException implements C
 
     private static final long serialVersionUID = 0;
 
-    private final InetSocketAddress address;
+    private final SocketAddress address;
 
-    public BootstrappingException(InetSocketAddress address, String message) {
+    public BootstrappingException(SocketAddress address, String message) {
         super(String.format("Queried host (%s) was bootstrapping: %s", address, message));
         this.address = address;
     }
@@ -35,7 +37,7 @@ public class BootstrappingException extends QueryExecutionException implements C
     /**
      * Private constructor used solely when copying exceptions.
      */
-    private BootstrappingException(InetSocketAddress address, String message, BootstrappingException cause) {
+    private BootstrappingException(SocketAddress address, String message, BootstrappingException cause) {
         super(message, cause);
         this.address = address;
     }
@@ -45,14 +47,14 @@ public class BootstrappingException extends QueryExecutionException implements C
      */
     @Override
     public InetAddress getHost() {
-        return address.getAddress();
+        return Hosts.getHost(address);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public InetSocketAddress getAddress() {
+    public SocketAddress getAddress() {
         return address;
     }
 

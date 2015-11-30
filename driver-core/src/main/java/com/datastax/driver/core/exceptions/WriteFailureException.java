@@ -18,7 +18,7 @@ package com.datastax.driver.core.exceptions;
 import com.datastax.driver.core.ConsistencyLevel;
 import com.datastax.driver.core.WriteType;
 
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * A non-timeout error during a write query.
@@ -38,7 +38,7 @@ public class WriteFailureException extends QueryConsistencyException {
         this(null, consistency, writeType, received, required, failed);
     }
 
-    public WriteFailureException(InetSocketAddress address, ConsistencyLevel consistency, WriteType writeType, int received, int required, int failed) {
+    public WriteFailureException(SocketAddress address, ConsistencyLevel consistency, WriteType writeType, int received, int required, int failed) {
         super(address, String.format("Cassandra failure during write query at consistency %s "
                                 + "(%d responses were required but only %d replica responded, %d failed)",
                         consistency, required, received, failed),
@@ -49,7 +49,7 @@ public class WriteFailureException extends QueryConsistencyException {
         this.failed = failed;
     }
 
-    private WriteFailureException(InetSocketAddress address, String msg, Throwable cause,
+    private WriteFailureException(SocketAddress address, String msg, Throwable cause,
                                   ConsistencyLevel consistency, WriteType writeType, int received, int required, int failed) {
         super(address, msg, cause, consistency, received, required);
         this.writeType = writeType;
@@ -80,7 +80,7 @@ public class WriteFailureException extends QueryConsistencyException {
                 getReceivedAcknowledgements(), getRequiredAcknowledgements(), getFailures());
     }
 
-    public WriteFailureException copy(InetSocketAddress address) {
+    public WriteFailureException copy(SocketAddress address) {
         return new WriteFailureException(
                 address,
                 getMessage(),

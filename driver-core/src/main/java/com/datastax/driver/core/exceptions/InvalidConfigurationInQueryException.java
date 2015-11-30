@@ -15,7 +15,7 @@
  */
 package com.datastax.driver.core.exceptions;
 
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * A specific invalid query exception that indicates that the query is invalid
@@ -36,7 +36,7 @@ public class InvalidConfigurationInQueryException extends InvalidQueryException 
         this(null, msg);
     }
 
-    public InvalidConfigurationInQueryException(InetSocketAddress address, String msg) {
+    public InvalidConfigurationInQueryException(SocketAddress address, String msg) {
         super(address, msg);
     }
 

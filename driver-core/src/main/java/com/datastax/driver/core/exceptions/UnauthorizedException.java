@@ -15,8 +15,10 @@
  */
 package com.datastax.driver.core.exceptions;
 
+import com.datastax.driver.core.utils.Hosts;
+
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * Indicates that a query cannot be performed due to the authorization
@@ -26,7 +28,7 @@ public class UnauthorizedException extends QueryValidationException implements C
 
     private static final long serialVersionUID = 0;
 
-    private final InetSocketAddress address;
+    private final SocketAddress address;
 
     /**
      * @deprecated This constructor is kept for backwards compatibility.
@@ -36,12 +38,12 @@ public class UnauthorizedException extends QueryValidationException implements C
         this(null, msg);
     }
 
-    public UnauthorizedException(InetSocketAddress address, String msg) {
+    public UnauthorizedException(SocketAddress address, String msg) {
         super(msg);
         this.address = address;
     }
 
-    private UnauthorizedException(InetSocketAddress address, String msg, Throwable cause) {
+    private UnauthorizedException(SocketAddress address, String msg, Throwable cause) {
         super(msg, cause);
         this.address = address;
     }
@@ -51,14 +53,14 @@ public class UnauthorizedException extends QueryValidationException implements C
      */
     @Override
     public InetAddress getHost() {
-        return address.getAddress();
+        return Hosts.getHost(getAddress());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public InetSocketAddress getAddress() {
+    public SocketAddress getAddress() {
         return address;
     }
 

@@ -16,9 +16,10 @@
 package com.datastax.driver.core.exceptions;
 
 import com.datastax.driver.core.ConsistencyLevel;
+import com.datastax.driver.core.utils.Hosts;
 
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * A failure to reach the required consistency level during the execution of a query.
@@ -34,12 +35,12 @@ import java.net.InetSocketAddress;
 @SuppressWarnings("serial")
 public abstract class QueryConsistencyException extends QueryExecutionException implements CoordinatorException {
 
-    private final InetSocketAddress address;
+    private final SocketAddress address;
     private final ConsistencyLevel consistency;
     private final int received;
     private final int required;
 
-    protected QueryConsistencyException(InetSocketAddress address, String msg, ConsistencyLevel consistency, int received, int required) {
+    protected QueryConsistencyException(SocketAddress address, String msg, ConsistencyLevel consistency, int received, int required) {
         super(msg);
         this.address = address;
         this.consistency = consistency;
@@ -47,7 +48,7 @@ public abstract class QueryConsistencyException extends QueryExecutionException 
         this.required = required;
     }
 
-    protected QueryConsistencyException(InetSocketAddress address, String msg, Throwable cause, ConsistencyLevel consistency, int received, int required) {
+    protected QueryConsistencyException(SocketAddress address, String msg, Throwable cause, ConsistencyLevel consistency, int received, int required) {
         super(msg, cause);
         this.address = address;
         this.consistency = consistency;
@@ -94,7 +95,7 @@ public abstract class QueryConsistencyException extends QueryExecutionException 
      */
     @Override
     public InetAddress getHost() {
-        return address.getAddress();
+        return Hosts.getHost(getAddress());
     }
 
     /**
@@ -105,7 +106,7 @@ public abstract class QueryConsistencyException extends QueryExecutionException 
      * or {@code null} if this exception has been generated driver-side.
      */
     @Override
-    public InetSocketAddress getAddress() {
+    public SocketAddress getAddress() {
         return address;
     }
 }

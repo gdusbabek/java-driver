@@ -15,8 +15,10 @@
  */
 package com.datastax.driver.core.exceptions;
 
+import com.datastax.driver.core.utils.Hosts;
+
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * Indicates that a connection has run out of stream IDs.
@@ -25,25 +27,25 @@ public class BusyConnectionException extends DriverException implements Coordina
 
     private static final long serialVersionUID = 0;
 
-    private final InetSocketAddress address;
+    private final SocketAddress address;
 
-    public BusyConnectionException(InetSocketAddress address) {
-        super(String.format("[%s] Connection has run out of stream IDs", address.getAddress()));
+    public BusyConnectionException(SocketAddress address) {
+        super(String.format("[%s] Connection has run out of stream IDs", Hosts.getHost(address)));
         this.address = address;
     }
 
-    public BusyConnectionException(InetSocketAddress address, Throwable cause) {
-        super(String.format("[%s] Connection has run out of stream IDs", address.getAddress()), cause);
+    public BusyConnectionException(SocketAddress address, Throwable cause) {
+        super(String.format("[%s] Connection has run out of stream IDs", Hosts.getHost(address)), cause);
         this.address = address;
     }
 
     @Override
     public InetAddress getHost() {
-        return address.getAddress();
+        return Hosts.getHost(getAddress());
     }
 
     @Override
-    public InetSocketAddress getAddress() {
+    public SocketAddress getAddress() {
         return address;
     }
 

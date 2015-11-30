@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.ref.WeakReference;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -70,7 +71,7 @@ class Connection {
 
     volatile long maxIdleTime;
 
-    public final InetSocketAddress address;
+    public final SocketAddress address;
     private final String name;
 
     @VisibleForTesting
@@ -103,7 +104,7 @@ class Connection {
      * @param owner   the component owning this connection (may be null).
      *                Note that an existing connection can also be associated to an owner later with {@link #setOwner(Owner)}.
      */
-    protected Connection(String name, InetSocketAddress address, Factory factory, Owner owner) {
+    protected Connection(String name, SocketAddress address, Factory factory, Owner owner) {
         this.address = address;
         this.factory = factory;
         this.dispatcher = new Dispatcher();
@@ -114,7 +115,7 @@ class Connection {
     /**
      * Create a new connection to a Cassandra node.
      */
-    Connection(String name, InetSocketAddress address, Factory factory) {
+    Connection(String name, SocketAddress address, Factory factory) {
         this(name, address, factory, null);
     }
 
@@ -719,7 +720,7 @@ class Connection {
          * @throws ConnectionException if connection attempt fails.
          */
         public Connection open(Host host) throws ConnectionException, InterruptedException, UnsupportedProtocolVersionException, ClusterNameMismatchException {
-            InetSocketAddress address = host.getSocketAddress();
+            SocketAddress address = host.getSocketAddress();
 
             if (isShutdown)
                 throw new ConnectionException(address, "Connection factory is shut down");
@@ -1141,7 +1142,7 @@ class Connection {
     static class Future extends AbstractFuture<Message.Response> implements RequestHandler.Callback {
 
         private final Message.Request request;
-        private volatile InetSocketAddress address;
+        private volatile SocketAddress address;
 
         public Future(Message.Request request) {
             this.request = request;
@@ -1190,7 +1191,7 @@ class Connection {
             return super.setException(new OperationTimedOutException(connection.address));
         }
 
-        public InetSocketAddress getAddress() {
+        public SocketAddress getAddress() {
             return address;
         }
     }

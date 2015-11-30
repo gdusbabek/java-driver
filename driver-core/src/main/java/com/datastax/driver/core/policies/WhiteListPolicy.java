@@ -19,7 +19,7 @@ import com.datastax.driver.core.Host;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Collection;
 
 /**
@@ -52,12 +52,12 @@ public class WhiteListPolicy extends HostFilterPolicy {
      * @param whiteList   the white listed hosts. Only hosts from this list may get connected
      *                    to (whether they will get connected to or not depends on the child policy).
      */
-    public WhiteListPolicy(LoadBalancingPolicy childPolicy, Collection<InetSocketAddress> whiteList) {
+    public WhiteListPolicy(LoadBalancingPolicy childPolicy, Collection<? extends SocketAddress> whiteList) {
         super(childPolicy, buildPredicate(whiteList));
     }
 
-    private static Predicate<Host> buildPredicate(Collection<InetSocketAddress> whiteList) {
-        final ImmutableSet<InetSocketAddress> hosts = ImmutableSet.copyOf(whiteList);
+    private static Predicate<Host> buildPredicate(Collection<? extends SocketAddress> whiteList) {
+        final ImmutableSet<SocketAddress> hosts = ImmutableSet.copyOf(whiteList);
         return new Predicate<Host>() {
             @Override
             public boolean apply(Host host) {

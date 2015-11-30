@@ -21,6 +21,7 @@ import com.datastax.driver.core.utils.Bytes;
 import io.netty.buffer.ByteBuf;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.util.*;
 
@@ -102,7 +103,7 @@ class Responses {
             this.infos = infos;
         }
 
-        public DriverException asException(InetSocketAddress host) {
+        public DriverException asException(SocketAddress host) {
             switch (code) {
                 case SERVER_ERROR:
                     return new ServerError(host, message);

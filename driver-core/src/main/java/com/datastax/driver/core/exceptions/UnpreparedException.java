@@ -15,8 +15,10 @@
  */
 package com.datastax.driver.core.exceptions;
 
+import com.datastax.driver.core.utils.Hosts;
+
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * Indicates that the contacted host replied with an UNPREPARED error code.
@@ -25,9 +27,9 @@ public class UnpreparedException extends QueryValidationException implements Coo
 
     private static final long serialVersionUID = 0;
 
-    private final InetSocketAddress address;
+    private final SocketAddress address;
 
-    public UnpreparedException(InetSocketAddress address, String message) {
+    public UnpreparedException(SocketAddress address, String message) {
         super(String.format("A prepared query was submitted on %s but was not known of that node: %s", address, message));
         this.address = address;
     }
@@ -35,7 +37,7 @@ public class UnpreparedException extends QueryValidationException implements Coo
     /**
      * Private constructor used solely when copying exceptions.
      */
-    private UnpreparedException(InetSocketAddress address, String message, UnpreparedException cause) {
+    private UnpreparedException(SocketAddress address, String message, UnpreparedException cause) {
         super(message, cause);
         this.address = address;
     }
@@ -45,14 +47,14 @@ public class UnpreparedException extends QueryValidationException implements Coo
      */
     @Override
     public InetAddress getHost() {
-        return address.getAddress();
+        return Hosts.getHost(getAddress());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public InetSocketAddress getAddress() {
+    public SocketAddress getAddress() {
         return address;
     }
 

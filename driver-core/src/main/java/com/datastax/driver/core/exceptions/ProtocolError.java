@@ -15,8 +15,10 @@
  */
 package com.datastax.driver.core.exceptions;
 
+import com.datastax.driver.core.utils.Hosts;
+
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * Indicates that the contacted host reported a protocol error.
@@ -28,9 +30,9 @@ public class ProtocolError extends DriverInternalError implements CoordinatorExc
 
     private static final long serialVersionUID = 0;
 
-    private final InetSocketAddress address;
+    private final SocketAddress address;
 
-    public ProtocolError(InetSocketAddress address, String message) {
+    public ProtocolError(SocketAddress address, String message) {
         super(String.format("An unexpected protocol error occurred on host %s. This is a bug in this library, please report: %s", address, message));
         this.address = address;
     }
@@ -38,7 +40,7 @@ public class ProtocolError extends DriverInternalError implements CoordinatorExc
     /**
      * Private constructor used solely when copying exceptions.
      */
-    private ProtocolError(InetSocketAddress address, String message, ProtocolError cause) {
+    private ProtocolError(SocketAddress address, String message, ProtocolError cause) {
         super(message, cause);
         this.address = address;
     }
@@ -49,14 +51,14 @@ public class ProtocolError extends DriverInternalError implements CoordinatorExc
      */
     @Override
     public InetAddress getHost() {
-        return address.getAddress();
+        return Hosts.getHost(getAddress());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public InetSocketAddress getAddress() {
+    public SocketAddress getAddress() {
         return address;
     }
 

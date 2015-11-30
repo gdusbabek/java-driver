@@ -15,8 +15,10 @@
  */
 package com.datastax.driver.core.exceptions;
 
+import com.datastax.driver.core.utils.Hosts;
+
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * Indicates that a connection to a host has encountered a problem
@@ -26,25 +28,25 @@ public class ConnectionException extends DriverException implements CoordinatorE
 
     private static final long serialVersionUID = 0;
 
-    public final InetSocketAddress address;
-
-    public ConnectionException(InetSocketAddress address, String msg, Throwable cause) {
+    public final SocketAddress address;
+    
+    public ConnectionException(SocketAddress address, String msg, Throwable cause) {
         super(msg, cause);
         this.address = address;
     }
-
-    public ConnectionException(InetSocketAddress address, String msg) {
+    
+    public ConnectionException(SocketAddress address, String msg) {
         super(msg);
         this.address = address;
     }
 
     @Override
     public InetAddress getHost() {
-        return address.getAddress();
+        return Hosts.getHost(getAddress());
     }
 
     @Override
-    public InetSocketAddress getAddress() {
+    public SocketAddress getAddress() {
         return address;
     }
 

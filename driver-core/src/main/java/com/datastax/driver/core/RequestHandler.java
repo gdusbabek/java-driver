@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -57,7 +58,7 @@ class RequestHandler {
     private final io.netty.util.Timer scheduler;
 
     private volatile List<Host> triedHosts;
-    private volatile ConcurrentMap<InetSocketAddress, Throwable> errors;
+    private volatile ConcurrentMap<SocketAddress, Throwable> errors;
 
     private final Timer.Context timerContext;
     private final long startTime;
@@ -148,10 +149,10 @@ class RequestHandler {
             execution.cancel();
     }
 
-    private void logError(InetSocketAddress address, Throwable exception) {
+    private void logError(SocketAddress address, Throwable exception) {
         logger.debug("Error querying {}, trying next host (error is: {})", address, exception.toString());
         if (errors == null)
-            errors = new ConcurrentHashMap<InetSocketAddress, Throwable>();
+            errors = new ConcurrentHashMap<SocketAddress, Throwable>();
         errors.put(address, exception);
     }
 
@@ -215,7 +216,7 @@ class RequestHandler {
         runningExecutions.remove(execution);
         if (runningExecutions.isEmpty())
             setFinalException(execution, null, new NoHostAvailableException(
-                    errors == null ? Collections.<InetSocketAddress, Throwable>emptyMap() : errors));
+                    errors == null ? Collections.<SocketAddress, Throwable>emptyMap() : errors));
     }
 
     private boolean metricsEnabled() {
@@ -411,12 +412,12 @@ class RequestHandler {
             });
         }
 
-        private void logError(InetSocketAddress address, Throwable exception) {
+        private void logError(SocketAddress address, Throwable exception) {
             logger.debug("[{}] Error querying {} : {}", id, address, exception.toString());
             if (errors == null) {
                 synchronized (RequestHandler.this) {
                     if (errors == null) {
-                        errors = new ConcurrentHashMap<InetSocketAddress, Throwable>();
+                        errors = new ConcurrentHashMap<SocketAddress, Throwable>();
                     }
                 }
             }

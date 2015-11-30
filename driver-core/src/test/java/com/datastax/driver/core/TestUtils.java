@@ -17,6 +17,7 @@ package com.datastax.driver.core;
 
 import com.datastax.driver.core.policies.RoundRobinPolicy;
 import com.datastax.driver.core.policies.WhiteListPolicy;
+import com.datastax.driver.core.utils.Hosts;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.channel.EventLoopGroup;
@@ -32,6 +33,7 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -511,9 +513,9 @@ public abstract class TestUtils {
             Futures.getUnchecked(cluster.manager.submitSchemaRefresh(null, null, null, null));
         }
 
-        InetAddress address;
+        String address;
         try {
-            address = InetAddress.getByName(node);
+            address = InetAddress.getByName(node).getHostAddress();
         } catch (Exception e) {
             // That's a problem but that's not *our* problem
             return;
@@ -582,9 +584,10 @@ public abstract class TestUtils {
             Host.StateListener addListener = new StateListenerBase() {
                 @Override
                 public void onAdd(Host host) {
-                    if (host.getAddress().getHostAddress().equals(address)) {
+                    if (host.getAddress().equals(address)) {
                         // for a new node, because of this we also listen for add events.
                         addSignal.countDown();
+                        
                     }
                 }
             };
@@ -612,7 +615,8 @@ public abstract class TestUtils {
         // because the port doesn't have the correct value if addContactPointsWithPorts was used to create the Cluster
         // (JAVA-860 will solve that)
         for (Host host : cluster.getMetadata().allHosts()) {
-            if (host.getAddress().getHostAddress().equals(address))
+            if (host.getAddress().equals(address))
+
                 return host;
         }
         return null;
@@ -703,7 +707,7 @@ public abstract class TestUtils {
      */
     public static Cluster buildControlCluster(Cluster cluster) {
         Host controlHost = cluster.manager.controlConnection.connectedHost();
-        List<InetSocketAddress> singleAddress = Collections.singletonList(controlHost.getSocketAddress());
+        List<InetSocketAddress> singleAddress = Collections.singletonList((InetSocketAddress)controlHost.getSocketAddress());
         return Cluster.builder()
                 .addContactPointsWithPorts(singleAddress)
                 .withLoadBalancingPolicy(new WhiteListPolicy(new RoundRobinPolicy(), singleAddress))

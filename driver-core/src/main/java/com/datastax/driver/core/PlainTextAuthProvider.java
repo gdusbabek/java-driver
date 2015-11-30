@@ -18,7 +18,7 @@ package com.datastax.driver.core;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Map;
 
 /**
@@ -78,7 +78,7 @@ public class PlainTextAuthProvider implements AuthProvider {
      * @return an Authenticator instance which can be used to perform
      * authentication negotiations on behalf of the client
      */
-    public Authenticator newAuthenticator(InetSocketAddress host, String authenticator) {
+    public Authenticator newAuthenticator(SocketAddress host, String authenticator) {
         return new PlainTextAuthenticator(username, password);
     }
 

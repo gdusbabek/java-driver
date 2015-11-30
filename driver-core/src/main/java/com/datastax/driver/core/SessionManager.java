@@ -31,7 +31,7 @@ import com.google.common.util.concurrent.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -597,8 +597,8 @@ class SessionManager extends AbstractSession {
                 }
             }, executor());
     }
-
-    private ListenableFuture<PreparedStatement> prepare(final PreparedStatement statement, InetSocketAddress toExclude) {
+    
+    private ListenableFuture<PreparedStatement> prepare(final PreparedStatement statement, SocketAddress toExclude) {
         final String query = statement.getQueryString();
         List<ListenableFuture<Response>> futures = Lists.newArrayListWithExpectedSize(pools.size());
         for (final Map.Entry<Host, HostConnectionPool> entry : pools.entrySet()) {

@@ -34,6 +34,7 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Collections;
@@ -515,7 +516,7 @@ public class CCMBridge {
                 // It's ok, ignore (not supposed to go there)
             } catch (NoHostAvailableException e) {
                 erroredOut = true;
-                for (Map.Entry<InetSocketAddress, Throwable> entry : e.getErrors().entrySet())
+                for (Map.Entry<SocketAddress, Throwable> entry : e.getErrors().entrySet())
                     logger.info("Error connecting to " + entry.getKey() + ": " + entry.getValue());
                 throw new RuntimeException(e);
             } catch (DriverException e) {
@@ -593,7 +594,7 @@ public class CCMBridge {
                 this.cluster = builder.addContactPoints(contactPoints).build();
                 this.session = cluster.connect();
             } catch (NoHostAvailableException e) {
-                for (Map.Entry<InetSocketAddress, Throwable> entry : e.getErrors().entrySet())
+                for (Map.Entry<SocketAddress, Throwable> entry : e.getErrors().entrySet())
                     logger.info("Error connecting to " + entry.getKey() + ": " + entry.getValue());
                 discard();
                 throw new RuntimeException(e);

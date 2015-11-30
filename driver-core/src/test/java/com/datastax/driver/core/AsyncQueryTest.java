@@ -22,6 +22,7 @@ import com.google.common.util.concurrent.*;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.*;
@@ -78,7 +79,7 @@ public class AsyncQueryTest extends CCMBridge.PerClassSingleNodeCluster {
         Cluster cluster2 = null;
         try {
             cluster2 = Cluster.builder()
-                    .addContactPointsWithPorts(Lists.newArrayList(host.getSocketAddress()))
+                    .addContactPointsWithPorts(Lists.newArrayList((InetSocketAddress)host.getSocketAddress()))
                     .build();
             Session session2 = cluster2.newSession();
 
