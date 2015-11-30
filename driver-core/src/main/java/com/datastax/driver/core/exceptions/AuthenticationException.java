@@ -15,8 +15,11 @@
  */
 package com.datastax.driver.core.exceptions;
 
+import com.datastax.driver.core.utils.Hosts;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * Indicates an error during the authentication phase while connecting to a node.
@@ -25,14 +28,14 @@ public class AuthenticationException extends DriverException {
 
     private static final long serialVersionUID = 0;
 
-    private final InetSocketAddress address;
+    private final SocketAddress address;
 
-    public AuthenticationException(InetSocketAddress address, String message) {
+    public AuthenticationException(SocketAddress address, String message) {
         super(String.format("Authentication error on host %s: %s", address, message));
         this.address = address;
     }
 
-    private AuthenticationException(String message, Throwable cause, InetSocketAddress address)
+    private AuthenticationException(String message, Throwable cause, SocketAddress address)
     {
         super(message, cause);
         this.address = address;
@@ -46,7 +49,7 @@ public class AuthenticationException extends DriverException {
      * @return the host for which the authentication failed.
      */
     public InetAddress getHost() {
-        return address.getAddress();
+        return Hosts.getHost(address);
     }
 
     /**
@@ -54,7 +57,7 @@ public class AuthenticationException extends DriverException {
      *
      * @return the host for which the authentication failed.
      */
-    public InetSocketAddress getAddress() {
+    public SocketAddress getAddress() {
         return address;
     }
 

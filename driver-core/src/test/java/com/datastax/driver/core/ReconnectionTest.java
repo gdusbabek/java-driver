@@ -16,7 +16,7 @@
 package com.datastax.driver.core;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -316,7 +316,7 @@ public class ReconnectionTest {
             this.password = password;
         }
 
-        public Authenticator newAuthenticator(InetSocketAddress host) {
+        public Authenticator newAuthenticator(SocketAddress host) {
             return new PlainTextAuthenticator();
         }
 

@@ -17,7 +17,7 @@ package com.datastax.driver.core.exceptions;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,14 +40,14 @@ public class NoHostAvailableException extends DriverException {
 
     private static final int MAX_ERRORS_IN_DEFAULT_MESSAGE = 3;
 
-    private final Map<InetSocketAddress, Throwable> errors;
+    private final Map<SocketAddress, Throwable> errors;
 
-    public NoHostAvailableException(Map<InetSocketAddress, Throwable> errors) {
+    public NoHostAvailableException(Map<SocketAddress, Throwable> errors) {
         super(makeMessage(errors, MAX_ERRORS_IN_DEFAULT_MESSAGE, false, false));
         this.errors = errors;
     }
 
-    private NoHostAvailableException(String message, Throwable cause, Map<InetSocketAddress, Throwable> errors) {
+    private NoHostAvailableException(String message, Throwable cause, Map<SocketAddress, Throwable> errors) {
         super(message, cause);
         this.errors = errors;
     }
@@ -59,8 +59,8 @@ public class NoHostAvailableException extends DriverException {
      * @return a map containing for each tried host the error triggered when
      * trying it.
      */
-    public Map<InetSocketAddress, Throwable> getErrors() {
-        return new HashMap<InetSocketAddress, Throwable>(errors);
+    public Map<SocketAddress, Throwable> getErrors() {
+        return new HashMap<SocketAddress, Throwable>(errors);
     }
 
     /**
@@ -84,7 +84,7 @@ public class NoHostAvailableException extends DriverException {
         return new NoHostAvailableException(getMessage(), this, errors);
     }
 
-    private static String makeMessage(Map<InetSocketAddress, Throwable> errors, int maxErrorsInMessage, boolean formatted, boolean includeStackTraces) {
+    private static String makeMessage(Map<SocketAddress, Throwable> errors, int maxErrorsInMessage, boolean formatted, boolean includeStackTraces) {
         if (errors.size() == 0)
             return "All host(s) tried for query failed (no host was tried)";
 
@@ -96,7 +96,7 @@ public class NoHostAvailableException extends DriverException {
 
         int n = 0;
         boolean truncated = false;
-        for (Map.Entry<InetSocketAddress, Throwable> entry : errors.entrySet())
+        for (Map.Entry<SocketAddress, Throwable> entry : errors.entrySet())
         {
             if (n > 0) out.print(formatted ? "\n" : ", ");
             out.print(entry.getKey());

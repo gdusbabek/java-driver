@@ -15,7 +15,7 @@
  */
 package com.datastax.driver.core.exceptions;
 
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * Indicates that the contacted host was bootstrapping.
@@ -28,9 +28,9 @@ public class BootstrappingException extends DriverInternalError {
 
     private static final long serialVersionUID = 0;
 
-    private final InetSocketAddress address;
+    private final SocketAddress address;
 
-    public BootstrappingException(InetSocketAddress address, String message) {
+    public BootstrappingException(SocketAddress address, String message) {
         super(String.format("Queried host (%s) was bootstrapping: %s", address, message));
         this.address = address;
     }
@@ -38,7 +38,7 @@ public class BootstrappingException extends DriverInternalError {
     /**
      * Private constructor used solely when copying exceptions.
      */
-    private BootstrappingException(InetSocketAddress address, String message, BootstrappingException cause) {
+    private BootstrappingException(SocketAddress address, String message, BootstrappingException cause) {
         super(message, cause);
         this.address = address;
     }
@@ -48,7 +48,7 @@ public class BootstrappingException extends DriverInternalError {
      *
      * @return The full address of the host that was bootstrapping.
      */
-    public InetSocketAddress getAddress() {
+    public SocketAddress getAddress() {
         return address;
     }
 

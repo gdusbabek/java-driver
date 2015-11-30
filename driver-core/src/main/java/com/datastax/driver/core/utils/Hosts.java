@@ -13,25 +13,20 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.datastax.driver.core;
 
+package com.datastax.driver.core.utils;
+
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
-/**
- * A connection exception that has to do with the transport itself, i.e. that
- * suggests the node is down.
- */
-class TransportException extends ConnectionException
-{
-    private static final long serialVersionUID = 0;
-
-    public TransportException(SocketAddress address, String msg, Throwable cause)
-    {
-        super(address, msg, cause);
-    }
-
-    public TransportException(SocketAddress address, String msg)
-    {
-        super(address, msg);
+public class Hosts {
+    
+    public static InetAddress getHost(SocketAddress address) {
+        if (address instanceof InetSocketAddress) {
+            return ((InetSocketAddress)address).getAddress();
+        } else {
+            return InetAddress.getLoopbackAddress();
+        }
     }
 }

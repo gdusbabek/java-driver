@@ -127,7 +127,7 @@ public class ControlConnectionTest {
             cluster.init();
 
             // Ensure the control connection host is that of the first node.
-            String controlHost = cluster.manager.controlConnection.connectedHost().getAddress().getHostAddress();
+            String controlHost = cluster.manager.controlConnection.connectedHost().getAddress();
             assertThat(controlHost).isEqualTo(CCMBridge.ipOfNode(1));
 
             // Decommission the node.
@@ -136,7 +136,7 @@ public class ControlConnectionTest {
             // Ensure that the new control connection is not null and it's host is not equal to the decommissioned node.
             Host newHost = cluster.manager.controlConnection.connectedHost();
             assertThat(newHost).isNotNull();
-            assertThat(newHost.getAddress().getHostAddress()).isNotEqualTo(controlHost);
+            assertThat(newHost.getAddress()).isNotEqualTo(controlHost);
         } finally {
             if (cluster != null)
                 cluster.close();

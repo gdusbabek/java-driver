@@ -42,7 +42,7 @@ public class LoadBalancingPolicyRefreshTest {
             this.cluster = cluster;
             try {
                 for (Host h : hosts)
-                    if (h.getAddress().equals(InetAddress.getByName(CCMBridge.IP_PREFIX + '1')))
+                    if (h.getAddress().equals(InetAddress.getByName(CCMBridge.IP_PREFIX + '1').getHostAddress()))
                         this.theHost = h;
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -77,7 +77,7 @@ public class LoadBalancingPolicyRefreshTest {
             // Ugly
             Host[] hosts = new Host[2];
             for (Host h : c.cluster.getMetadata().getAllHosts()) {
-                if (h.getAddress().equals(InetAddress.getByName(CCMBridge.IP_PREFIX + '1')))
+                if (h.getAddress().equals(InetAddress.getByName(CCMBridge.IP_PREFIX + '1').getHostAddress()))
                     hosts[0] = h;
                 else
                     hosts[1] = h;

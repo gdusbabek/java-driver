@@ -15,6 +15,8 @@
  */
 package com.datastax.driver.core;
 
+import com.datastax.driver.core.utils.Hosts;
+
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -61,7 +63,7 @@ public abstract class AbstractPoliciesTest {
      * Coordinator management/count
      */
     protected void addCoordinator(ResultSet rs) {
-        InetAddress coordinator = rs.getExecutionInfo().getQueriedHost().getAddress();
+        InetAddress coordinator = Hosts.getHost(rs.getExecutionInfo().getQueriedHost().getSocketAddress());
         Integer n = coordinators.get(coordinator);
         coordinators.put(coordinator, n == null ? 1 : n + 1);
     }

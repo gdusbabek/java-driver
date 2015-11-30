@@ -15,8 +15,7 @@
  */
 package com.datastax.driver.core;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -68,7 +67,7 @@ public class AuthenticationTest {
                                                 .connect();
         } catch (NoHostAvailableException e) {
 
-            for (Map.Entry<InetSocketAddress, Throwable> entry : e.getErrors().entrySet())
+            for (Map.Entry<SocketAddress, Throwable> entry : e.getErrors().entrySet())
                 logger.error("Error connecting to " + entry.getKey(),  entry.getValue());
             throw new RuntimeException(e);
         }
@@ -83,7 +82,7 @@ public class AuthenticationTest {
                    .connect();
         } catch (NoHostAvailableException e) {
 
-            for (Map.Entry<InetSocketAddress, Throwable> entry : e.getErrors().entrySet())
+            for (Map.Entry<SocketAddress, Throwable> entry : e.getErrors().entrySet())
                 logger.info("Error connecting to " + entry.getKey() + ": " + entry.getValue());
             throw new RuntimeException(e);
         }
@@ -97,7 +96,7 @@ public class AuthenticationTest {
                               .connect();
         } catch (NoHostAvailableException e) {
 
-            for (Map.Entry<InetSocketAddress, Throwable> entry : e.getErrors().entrySet())
+            for (Map.Entry<SocketAddress, Throwable> entry : e.getErrors().entrySet())
                 logger.info("Error connecting to " + entry.getKey() + ": " + entry.getValue());
             throw new RuntimeException(e);
         }

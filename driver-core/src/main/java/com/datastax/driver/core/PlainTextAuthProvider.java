@@ -15,8 +15,7 @@
  */
 package com.datastax.driver.core;
 
-import javax.security.sasl.SaslException;
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.Map;
 
 import com.google.common.base.Charsets;
@@ -55,7 +54,7 @@ public class PlainTextAuthProvider implements AuthProvider {
      * @return an Authenticator instance which can be used to perform
      * authentication negotiations on behalf of the client
      */
-    public Authenticator newAuthenticator(InetSocketAddress host) {
+    public Authenticator newAuthenticator(SocketAddress host) {
         return new PlainTextAuthenticator(username, password);
     }
 

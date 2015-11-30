@@ -15,21 +15,21 @@
  */
 package com.datastax.driver.core;
 
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 class ConnectionException extends Exception {
 
     private static final long serialVersionUID = 0;
 
-    public final InetSocketAddress address;
+    public final SocketAddress address;
 
-    public ConnectionException(InetSocketAddress address, String msg, Throwable cause)
+    public ConnectionException(SocketAddress address, String msg, Throwable cause)
     {
         super(msg, cause);
         this.address = address;
     }
 
-    public ConnectionException(InetSocketAddress address, String msg)
+    public ConnectionException(SocketAddress address, String msg)
     {
         super(msg);
         this.address = address;

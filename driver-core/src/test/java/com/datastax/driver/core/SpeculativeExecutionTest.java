@@ -18,6 +18,7 @@ package com.datastax.driver.core;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 
+import com.datastax.driver.core.utils.Hosts;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.UnsignedBytes;
@@ -194,8 +195,8 @@ public class SpeculativeExecutionTest {
         private final SortedSet<Host> hosts = new ConcurrentSkipListSet<Host>(new Comparator<Host>() {
             @Override
             public int compare(Host host1, Host host2) {
-                byte[] address1 = host1.getAddress().getAddress();
-                byte[] address2 = host2.getAddress().getAddress();
+                byte[] address1 = Hosts.getHost(host1.getSocketAddress()).getAddress();
+                byte[] address2 = Hosts.getHost(host2.getSocketAddress()).getAddress();
                 return UnsignedBytes.compare(
                     address1[address1.length - 1],
                     address2[address2.length - 1]);

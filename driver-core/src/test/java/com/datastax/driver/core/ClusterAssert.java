@@ -32,7 +32,7 @@ public class ClusterAssert extends AbstractAssert<ClusterAssert, Cluster> {
     public ClusterAssert usesControlHost(int node) {
         String expectedAddress = CCMBridge.ipOfNode(node);
         Host controlHost = actual.manager.controlConnection.connectedHost();
-        assertThat(controlHost.getAddress().getHostAddress()).isEqualTo(expectedAddress);
+        assertThat(controlHost.getAddress()).isEqualTo(expectedAddress);
         return this;
     }
 

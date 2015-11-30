@@ -21,11 +21,13 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.util.*;
 
 import static org.testng.Assert.fail;
 
+import com.datastax.driver.core.utils.Hosts;
 import org.scassandra.Scassandra;
 import org.scassandra.ScassandraFactory;
 import org.slf4j.Logger;
@@ -364,9 +366,9 @@ public abstract class TestUtils {
         if (waitForDead || waitForOut)
             cluster.manager.submitSchemaRefresh(null, null, null, null);
 
-        InetAddress address;
+        String address;
         try {
-             address = InetAddress.getByName(node);
+             address = InetAddress.getByName(node).getHostAddress();
         } catch (Exception e) {
             // That's a problem but that's not *our* problem
             return;
@@ -422,7 +424,7 @@ public abstract class TestUtils {
     public static Host findHost(Cluster cluster, int hostNumber) {
         String address = CCMBridge.ipOfNode(hostNumber);
         for (Host host : cluster.getMetadata().getAllHosts()) {
-            if (host.getAddress().getHostAddress().equals(address))
+            if (host.getAddress().equals(address))
                 return host;
         }
         fail(address + " not found in cluster metadata");
@@ -499,7 +501,7 @@ public abstract class TestUtils {
      */
     public static Cluster buildControlCluster(Cluster cluster) {
         Host controlHost = cluster.manager.controlConnection.connectedHost();
-        List<InetSocketAddress> singleAddress = Collections.singletonList(controlHost.getSocketAddress());
+        List<InetSocketAddress> singleAddress = Collections.singletonList((InetSocketAddress)controlHost.getSocketAddress());
         return Cluster.builder()
             .addContactPointsWithPorts(singleAddress)
             .withLoadBalancingPolicy(new WhiteListPolicy(new RoundRobinPolicy(), singleAddress))

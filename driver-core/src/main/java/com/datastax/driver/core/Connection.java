@@ -17,6 +17,7 @@ package com.datastax.driver.core;
 
 import java.lang.ref.WeakReference;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -72,7 +73,7 @@ class Connection {
 
     volatile long maxIdleTime;
 
-    public final InetSocketAddress address;
+    public final SocketAddress address;
     private final String name;
 
     private volatile Channel channel;
@@ -103,7 +104,7 @@ class Connection {
      * @param pool the pool this connection belongs to. May be null if this connection does not belong to a pool.
      *             Note that an existing connection can also be associated to a pool later with {@link #setPool(HostConnectionPool)}.
      */
-    protected Connection(String name, InetSocketAddress address, Factory factory, HostConnectionPool pool) {
+    protected Connection(String name, SocketAddress address, Factory factory, HostConnectionPool pool) {
         this.address = address;
         this.factory = factory;
         this.dispatcher = new Dispatcher();
@@ -114,7 +115,7 @@ class Connection {
     /**
      * Create a new connection to a Cassandra node.
      */
-    Connection(String name, InetSocketAddress address, Factory factory) {
+    Connection(String name, SocketAddress address, Factory factory) {
         this(name, address, factory, null);
     }
 
@@ -712,7 +713,7 @@ class Connection {
          * @throws ConnectionException if connection attempt fails.
          */
         public Connection open(Host host) throws ConnectionException, InterruptedException, UnsupportedProtocolVersionException, ClusterNameMismatchException {
-            InetSocketAddress address = host.getSocketAddress();
+            SocketAddress address = host.getSocketAddress();
 
             if (isShutdown)
                 throw new ConnectionException(address, "Connection factory is shut down");
@@ -745,7 +746,7 @@ class Connection {
          * Creates a new connection and associates it to the provided connection pool, but does not start it.
          */
         public Connection newConnection(HostConnectionPool pool) {
-            InetSocketAddress address = pool.host.getSocketAddress();
+            SocketAddress address = pool.host.getSocketAddress();
             String name = address.toString() + '-' + getIdGenerator(pool.host).getAndIncrement();
 
             return new Connection(name, address, this, pool);
@@ -1140,7 +1141,7 @@ class Connection {
     static class Future extends AbstractFuture<Message.Response> implements RequestHandler.Callback {
 
         private final Message.Request request;
-        private volatile InetSocketAddress address;
+        private volatile SocketAddress address;
 
         public Future(Message.Request request) {
             this.request = request;
@@ -1189,7 +1190,7 @@ class Connection {
             return super.setException(new OperationTimedOutException(connection.address));
         }
 
-        public InetSocketAddress getAddress() {
+        public SocketAddress getAddress() {
             return address;
         }
     }

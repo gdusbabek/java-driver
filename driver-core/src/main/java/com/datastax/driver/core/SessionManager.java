@@ -16,6 +16,7 @@
 package com.datastax.driver.core;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.*;
@@ -569,7 +570,7 @@ class SessionManager extends AbstractSession {
         new RequestHandler(this, callback, statement).sendRequest();
     }
 
-    private void prepare(String query, InetSocketAddress toExclude) throws InterruptedException {
+    private void prepare(String query, SocketAddress toExclude) throws InterruptedException {
         for (Map.Entry<Host, HostConnectionPool> entry : pools.entrySet()) {
             if (entry.getKey().getSocketAddress().equals(toExclude))
                 continue;

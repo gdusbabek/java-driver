@@ -16,6 +16,7 @@
 package com.datastax.driver.core;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -60,7 +61,7 @@ class RequestHandler {
 
     private volatile List<Host> triedHosts;
 
-    private volatile Map<InetSocketAddress, Throwable> errors;
+    private volatile Map<SocketAddress, Throwable> errors;
 
     private final Timer.Context timerContext;
     private final long startTime;
@@ -150,10 +151,10 @@ class RequestHandler {
             execution.cancel();
     }
 
-    private void logError(InetSocketAddress address, Throwable exception) {
+    private void logError(SocketAddress address, Throwable exception) {
         logger.debug("Error querying {}, trying next host (error is: {})", address, exception.toString());
         if (errors == null)
-            errors = new ConcurrentHashMap<InetSocketAddress, Throwable>();
+            errors = new ConcurrentHashMap<SocketAddress, Throwable>();
         errors.put(address, exception);
     }
 
@@ -217,7 +218,7 @@ class RequestHandler {
         runningExecutions.remove(execution);
         if (runningExecutions.isEmpty())
             setFinalException(execution, null, new NoHostAvailableException(
-                errors == null ? Collections.<InetSocketAddress, Throwable>emptyMap() : errors));
+                errors == null ? Collections.<SocketAddress, Throwable>emptyMap() : errors));
     }
 
     private boolean metricsEnabled() {

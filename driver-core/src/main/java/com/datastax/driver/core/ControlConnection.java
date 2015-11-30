@@ -17,6 +17,7 @@ package com.datastax.driver.core;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -184,7 +185,7 @@ class ControlConnection {
 
     private Connection reconnectInternal(Iterator<Host> iter, boolean isInitialConnection) throws UnsupportedProtocolVersionException {
 
-        Map<InetSocketAddress, Throwable> errors = null;
+        Map<SocketAddress, Throwable> errors = null;
 
         Host host = null;
         try {
@@ -224,12 +225,12 @@ class ControlConnection {
             while (iter.hasNext())
                 errors = logError(iter.next(), new DriverException("Connection thread interrupted"), errors, iter);
         }
-        throw new NoHostAvailableException(errors == null ? Collections.<InetSocketAddress, Throwable>emptyMap() : errors);
+        throw new NoHostAvailableException(errors == null ? Collections.<SocketAddress, Throwable>emptyMap() : errors);
     }
 
-    private static Map<InetSocketAddress, Throwable> logError(Host host, Throwable exception, Map<InetSocketAddress, Throwable> errors, Iterator<Host> iter) {
+    private static Map<SocketAddress, Throwable> logError(Host host, Throwable exception, Map<SocketAddress, Throwable> errors, Iterator<Host> iter) {
         if (errors == null)
-            errors = new HashMap<InetSocketAddress, Throwable>();
+            errors = new HashMap<SocketAddress, Throwable>();
 
         errors.put(host.getSocketAddress(), exception);
 
@@ -429,11 +430,12 @@ class ControlConnection {
         }
     }
 
-    private static InetSocketAddress addressToUseForPeerHost(Row peersRow, InetSocketAddress connectedHost, Cluster.Manager cluster, boolean logMissingRpcAddresses) {
+    private static InetSocketAddress addressToUseForPeerHost(Row peersRow, SocketAddress connectedHost, Cluster.Manager cluster, boolean logMissingRpcAddresses) {
         InetAddress peer = peersRow.getInet("peer");
         InetAddress addr = peersRow.getInet("rpc_address");
+        InetSocketAddress connectedHostSocket = connectedHost instanceof InetSocketAddress ? (InetSocketAddress)connectedHost : null;
 
-        if (peer.equals(connectedHost.getAddress()) || (addr != null && addr.equals(connectedHost.getAddress()))) {
+        if (connectedHostSocket != null && (peer.equals(connectedHostSocket.getAddress()) || (addr != null && addr.equals(connectedHostSocket.getAddress())))) {
             // Some DSE versions were inserting a line for the local node in peers (with mostly null values). This has been fixed, but if we
             // detect that's the case, ignore it as it's not really a big deal.
             logger.debug("System.peers on node {} has a line for itself. This is not normal but is a known problem of some DSE version. Ignoring the entry.", connectedHost);

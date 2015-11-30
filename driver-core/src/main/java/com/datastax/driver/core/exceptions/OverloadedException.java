@@ -15,7 +15,7 @@
  */
 package com.datastax.driver.core.exceptions;
 
-import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * Indicates that the contacted host reported itself being overloaded.
@@ -28,9 +28,9 @@ public class OverloadedException extends DriverInternalError {
 
     private static final long serialVersionUID = 0;
 
-    private final InetSocketAddress address;
+    private final SocketAddress address;
 
-    public OverloadedException(InetSocketAddress address, String message) {
+    public OverloadedException(SocketAddress address, String message) {
         super(String.format("Queried host (%s) was overloaded: %s", address, message));
         this.address = address;
     }
@@ -38,7 +38,7 @@ public class OverloadedException extends DriverInternalError {
     /**
      * Private constructor used solely when copying exceptions.
      */
-    private OverloadedException(InetSocketAddress address, String message, OverloadedException cause) {
+    private OverloadedException(SocketAddress address, String message, OverloadedException cause) {
         super(message, cause);
         this.address = address;
     }
@@ -48,7 +48,7 @@ public class OverloadedException extends DriverInternalError {
      *
      * @return The full address of the host that reported itself being overloaded.
      */
-    public InetSocketAddress getAddress() {
+    public SocketAddress getAddress() {
         return address;
     }
 
