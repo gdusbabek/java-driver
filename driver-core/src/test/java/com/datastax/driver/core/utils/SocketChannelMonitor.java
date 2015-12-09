@@ -22,6 +22,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.MapMaker;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import org.slf4j.Logger;
@@ -38,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Utility that observes {@link SocketChannel}s.  Helpful for ensuring that Sockets are actually closed
+ * Utility that observes {@link Channel}s.  Helpful for ensuring that Sockets are actually closed
  * when they should be.  Utilizes {@link NettyOptions} to monitor created {@link SocketChannel}s.
  */
 public class SocketChannelMonitor implements Runnable {
@@ -49,14 +50,14 @@ public class SocketChannelMonitor implements Runnable {
             new ThreadFactoryBuilder().setDaemon(true).setNameFormat("SocketMonitor-%d").build());
 
     // use a weak set so channels may be garbage collected.
-    private final Collection<SocketChannel> channels = Collections.newSetFromMap(
-            new MapMaker().weakKeys().<SocketChannel, Boolean>makeMap());
+    private final Collection<Channel> channels = Collections.newSetFromMap(
+            new MapMaker().weakKeys().<Channel, Boolean>makeMap());
 
     private final AtomicLong channelsCreated = new AtomicLong(0);
 
     private final NettyOptions nettyOptions = new NettyOptions() {
         @Override
-        public void afterChannelInitialized(SocketChannel channel) throws Exception {
+        public void afterChannelInitialized(Channel channel) throws Exception {
             channels.add(channel);
             channelsCreated.incrementAndGet();
         }
@@ -92,9 +93,9 @@ public class SocketChannelMonitor implements Runnable {
         return nettyOptions;
     }
 
-    public static Predicate<SocketChannel> openChannels = new Predicate<SocketChannel>() {
+    public static Predicate<Channel> openChannels = new Predicate<Channel>() {
         @Override
-        public boolean apply(SocketChannel input) {
+        public boolean apply(Channel input) {
             return input.isOpen();
         }
     };
@@ -113,7 +114,7 @@ public class SocketChannelMonitor implements Runnable {
      * Reports for all sockets.
      */
     public void report() {
-        report(Predicates.<SocketChannel>alwaysTrue());
+        report(Predicates.<Channel>alwaysTrue());
     }
 
     /**
@@ -126,11 +127,11 @@ public class SocketChannelMonitor implements Runnable {
      *
      * @param channelFilter used to determine which sockets to report on.
      */
-    public void report(Predicate<SocketChannel> channelFilter) {
+    public void report(Predicate<Channel> channelFilter) {
         if (logger.isDebugEnabled()) {
-            Iterable<SocketChannel> channels = matchingChannels(channelFilter);
-            Iterable<SocketChannel> open = Iterables.filter(channels, openChannels);
-            Iterable<SocketChannel> closed = Iterables.filter(channels, Predicates.not(openChannels));
+            Iterable<Channel> channels = matchingChannels(channelFilter);
+            Iterable<Channel> open = Iterables.filter(channels, openChannels);
+            Iterable<Channel> closed = Iterables.filter(channels, Predicates.not(openChannels));
 
             logger.debug("Channel states: {} open, {} closed, live {}, total sockets created " +
                             "(including those that don't match filter) {}.",
@@ -146,9 +147,9 @@ public class SocketChannelMonitor implements Runnable {
         }
     }
 
-    private static Comparator<SocketChannel> BY_REMOTE_ADDRESS = new Comparator<SocketChannel>() {
+    private static Comparator<Channel> BY_REMOTE_ADDRESS = new Comparator<Channel>() {
         @Override
-        public int compare(SocketChannel t0, SocketChannel t1) {
+        public int compare(Channel t0, Channel t1) {
             // Should not be null as these are filtered previously in matchingChannels.
             assert t0 != null && t0.remoteAddress() != null;
             assert t1 != null && t1.remoteAddress() != null;
@@ -161,10 +162,10 @@ public class SocketChannelMonitor implements Runnable {
      * @param addresses The addresses to include.
      * @return Open channels matching the given socket addresses.
      */
-    public Collection<SocketChannel> openChannels(final Collection<InetSocketAddress> addresses) {
-        List<SocketChannel> channels = Lists.newArrayList(matchingChannels(new Predicate<SocketChannel>() {
+    public Collection<Channel> openChannels(final Collection<InetSocketAddress> addresses) {
+        List<Channel> channels = Lists.newArrayList(matchingChannels(new Predicate<Channel>() {
             @Override
-            public boolean apply(SocketChannel input) {
+            public boolean apply(Channel input) {
                 return input.isOpen() && input.remoteAddress() != null && addresses.contains(input.remoteAddress());
             }
         }));
@@ -178,7 +179,7 @@ public class SocketChannelMonitor implements Runnable {
      * @param channelFilter {@link Predicate} to use to determine whether or not a socket shall be considered.
      * @return Channels matching the given {@link Predicate}.
      */
-    public Iterable<SocketChannel> matchingChannels(final Predicate<SocketChannel> channelFilter) {
+    public Iterable<Channel> matchingChannels(final Predicate<Channel> channelFilter) {
         return Iterables.filter(Lists.newArrayList(channels), Predicates.and(Predicates.notNull(), channelFilter));
     }
 }

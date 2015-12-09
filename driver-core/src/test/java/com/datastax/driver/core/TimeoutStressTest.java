@@ -23,7 +23,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.common.util.concurrent.Uninterruptibles;
-import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
@@ -159,7 +159,7 @@ public class TimeoutStressTest {
                 channelMonitor.report();
                 // Some connections that are being closed may have had active requests which are delegated to the
                 // reaper for cleanup later.
-                Collection<SocketChannel> openChannels = channelMonitor.openChannels(nodes);
+                Collection<Channel> openChannels = channelMonitor.openChannels(nodes);
 
                 // Ensure that we don't exceed maximum connections.  Log as warning as there will be a bit of a timing
                 // factor between retrieving open connections and checking the reaper.
@@ -182,7 +182,7 @@ public class TimeoutStressTest {
                     "and for the pools to recover.");
             Uninterruptibles.sleepUninterruptibly(20, TimeUnit.SECONDS);
 
-            Collection<SocketChannel> openChannels = channelMonitor.openChannels(nodes);
+            Collection<Channel> openChannels = channelMonitor.openChannels(nodes);
             assertThat(openChannels.size())
                     .as("Number of open connections does not meet expected: %s", openChannels)
                     .isLessThanOrEqualTo(maxConnections);

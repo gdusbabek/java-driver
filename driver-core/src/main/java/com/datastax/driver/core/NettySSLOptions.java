@@ -15,7 +15,7 @@
  */
 package com.datastax.driver.core;
 
-import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.Channel;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 
@@ -37,7 +37,7 @@ public class NettySSLOptions implements SSLOptions {
     }
 
     @Override
-    public SslHandler newSSLHandler(SocketChannel channel) {
+    public SslHandler newSSLHandler(Channel channel) {
         return context.newHandler(channel.alloc());
     }
 }

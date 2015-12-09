@@ -15,7 +15,7 @@
  */
 package com.datastax.driver.core;
 
-import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.Channel;
 import io.netty.handler.ssl.SslHandler;
 
 import javax.net.ssl.SSLContext;
@@ -51,7 +51,7 @@ public class JdkSSLOptions implements SSLOptions {
     }
 
     @Override
-    public SslHandler newSSLHandler(SocketChannel channel) {
+    public SslHandler newSSLHandler(Channel channel) {
         SSLEngine engine = newSSLEngine(channel);
         return new SslHandler(engine);
     }
@@ -66,7 +66,7 @@ public class JdkSSLOptions implements SSLOptions {
      * @param channel the Netty channel for that connection.
      * @return the engine.
      */
-    protected SSLEngine newSSLEngine(SocketChannel channel) {
+    protected SSLEngine newSSLEngine(Channel channel) {
         SSLEngine engine = context.createSSLEngine();
         engine.setUseClientMode(true);
         if (cipherSuites != null)

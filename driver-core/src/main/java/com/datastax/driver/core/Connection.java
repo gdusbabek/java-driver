@@ -1268,7 +1268,7 @@ class Connection {
         public void handle(Message.Response response);
     }
 
-    private static class Initializer extends ChannelInitializer<SocketChannel> {
+    private static class Initializer extends ChannelInitializer<Channel> {
         // Stateless handlers
         private static final Message.ProtocolDecoder messageDecoder = new Message.ProtocolDecoder();
         private static final Message.ProtocolEncoder messageEncoderV1 = new Message.ProtocolEncoder(ProtocolVersion.V1);
@@ -1296,7 +1296,7 @@ class Connection {
         }
 
         @Override
-        protected void initChannel(SocketChannel channel) throws Exception {
+        protected void initChannel(Channel channel) throws Exception {
 
             // set the codec registry so that it can be accessed by ProtocolDecoder
             channel.attr(Message.CODEC_REGISTRY_ATTRIBUTE_KEY).set(codecRegistry);

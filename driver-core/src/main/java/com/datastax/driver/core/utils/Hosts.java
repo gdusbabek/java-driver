@@ -21,6 +21,7 @@ import io.netty.channel.unix.DomainSocketAddress;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.Collection;
 
 public class Hosts {
     
@@ -45,5 +46,14 @@ public class Hosts {
         } else {
             return "UNKNOWN ADDRESS";
         }
+    }
+    
+    public static boolean areAllDomain(Collection<SocketAddress> addresses) {
+        for (SocketAddress addr : addresses) {
+            if (!DomainSocketAddress.class.isAssignableFrom(addr.getClass())) {
+                return false;
+            }
+        }
+        return true;
     }
 }
