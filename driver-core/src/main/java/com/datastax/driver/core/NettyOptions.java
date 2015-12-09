@@ -23,6 +23,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -113,7 +114,7 @@ public class NettyOptions {
      *
      * @return The {@link SocketChannel} subclass to use.
      */
-    public Class<? extends SocketChannel> channelClass() {
+    public Class<? extends Channel> channelClass() {
         return NettyUtil.channelClass();
     }
 
@@ -170,7 +171,7 @@ public class NettyOptions {
      * @param channel the {@link SocketChannel} instance, after being initialized by the driver.
      * @throws Exception if this methods encounters any errors.
      */
-    public void afterChannelInitialized(SocketChannel channel) throws Exception {
+    public void afterChannelInitialized(Channel channel) throws Exception {
         //noop
     }
 

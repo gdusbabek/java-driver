@@ -16,8 +16,10 @@
 package com.datastax.driver.core;
 
 import java.io.Closeable;
+import java.io.File;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.*;
 import java.util.Map.Entry;
@@ -25,11 +27,13 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.datastax.driver.core.utils.Hosts;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.base.Predicates;
 import com.google.common.collect.*;
 import com.google.common.util.concurrent.*;
+import io.netty.channel.unix.DomainSocketAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,7 +96,7 @@ public class Cluster implements Closeable {
      * @param contactPoints the list of contact points to use for the new cluster.
      * @param configuration the configuration for the new cluster.
      */
-    protected Cluster(String name, List<InetSocketAddress> contactPoints, Configuration configuration) {
+    protected Cluster(String name, List<SocketAddress> contactPoints, Configuration configuration) {
         this(name, contactPoints, configuration, Collections.<Host.StateListener>emptySet());
     }
 
@@ -113,13 +117,13 @@ public class Cluster implements Closeable {
              initializer.getInitialListeners());
     }
 
-    private static List<InetSocketAddress> checkNotEmpty(List<InetSocketAddress> contactPoints) {
+    private static List<SocketAddress> checkNotEmpty(List<SocketAddress> contactPoints) {
         if (contactPoints.isEmpty())
             throw new IllegalArgumentException("Cannot build a cluster without contact points");
         return contactPoints;
     }
 
-    private Cluster(String name, List<InetSocketAddress> contactPoints, Configuration configuration, Collection<Host.StateListener> listeners) {
+    private Cluster(String name, List<SocketAddress> contactPoints, Configuration configuration, Collection<Host.StateListener> listeners) {
         this.manager = new Manager(name, contactPoints, configuration, listeners);
     }
 
@@ -528,7 +532,7 @@ public class Cluster implements Closeable {
          * @return the initial Cassandra contact points. See {@link Builder#addContactPoint}
          * for more details on contact points.
          */
-        public List<InetSocketAddress> getContactPoints();
+        public List<SocketAddress> getContactPoints();
 
         /**
          * The configuration to use for the new cluster.
@@ -559,6 +563,36 @@ public class Cluster implements Closeable {
          */
         public Collection<Host.StateListener> getInitialListeners();
     }
+    
+    private interface SocketAddressBuilder {
+        SocketAddress build();
+    }
+    
+    // late binds a InetAddress to a port to produce a InetSocketAddress 
+    private static class UnboundInetSocketAddressBuilder implements SocketAddressBuilder {
+        private final InetAddress addr;
+        private final Builder builder;
+        
+        public UnboundInetSocketAddressBuilder(InetAddress addr, Builder builder) {
+            this.addr = addr;
+            this.builder = builder;
+        }
+        @Override
+        public SocketAddress build() {
+            return new InetSocketAddress(addr, builder.port);
+        }
+    }
+    
+    private static class DomainSocketAddressBuilder implements SocketAddressBuilder {
+        private final String path;
+        public DomainSocketAddressBuilder(String path) {
+            this.path = path;
+        }
+        @Override
+        public SocketAddress build() {
+            return new DomainSocketAddress(path);
+        }
+    }
 
     /**
      * Helper class to build {@link Cluster} instances.
@@ -566,8 +600,8 @@ public class Cluster implements Closeable {
     public static class Builder implements Initializer {
 
         private String clusterName;
-        private final List<InetSocketAddress> addresses = new ArrayList<InetSocketAddress>();
-        private final List<InetAddress> rawAddresses = new ArrayList<InetAddress>();
+        private final List<SocketAddress> addresses = new ArrayList<SocketAddress>();
+        private final List<SocketAddressBuilder> addressBuilders = new ArrayList<SocketAddressBuilder>();
         private int port = ProtocolOptions.DEFAULT_PORT;
         private int maxSchemaAgreementWaitSeconds = ProtocolOptions.DEFAULT_MAX_SCHEMA_AGREEMENT_WAIT_SECONDS;
         private ProtocolVersion protocolVersion;
@@ -600,13 +634,13 @@ public class Cluster implements Closeable {
         }
 
         @Override
-        public List<InetSocketAddress> getContactPoints() {
-            if (rawAddresses.isEmpty())
+        public List<SocketAddress> getContactPoints() {
+            if (addressBuilders.isEmpty())
                 return addresses;
 
-            List<InetSocketAddress> allAddresses = new ArrayList<InetSocketAddress>(addresses);
-            for (InetAddress address : rawAddresses)
-                allAddresses.add(new InetSocketAddress(address, port));
+            List<SocketAddress> allAddresses = new ArrayList<SocketAddress>(addresses);
+            for (SocketAddressBuilder builder : addressBuilders)
+                allAddresses.add(builder.build());
             return allAddresses;
         }
 
@@ -715,6 +749,23 @@ public class Cluster implements Closeable {
         }
 
         /**
+         * Adds a domain socket contact point (on the local system).
+         * @param path
+         * @return
+         */
+        public Builder addDomainContactPoint(String path) {
+            if (path == null)
+                throw new NullPointerException();
+            
+            File filePath = new File(path);
+            if (filePath.exists() && !filePath.isFile() && !filePath.isDirectory()) // must be special, right?
+                this.addressBuilders.add(new DomainSocketAddressBuilder(path));
+            else
+                throw new IllegalArgumentException("Invalid domain socket path");
+            return this;
+        }
+
+        /**
          * Adds a contact point - or many if it host resolves to multiple
          * <code>InetAddress</code>s (A records).
          * <p>
@@ -793,8 +844,7 @@ public class Cluster implements Closeable {
          * @see Builder#addContactPoint
          */
         public Builder addContactPoints(InetAddress... addresses) {
-            Collections.addAll(this.rawAddresses, addresses);
-            return this;
+            return addContactPoints(Lists.newArrayList(addresses));
         }
 
         /**
@@ -809,7 +859,9 @@ public class Cluster implements Closeable {
          * @see Builder#addContactPoint
          */
         public Builder addContactPoints(Collection<InetAddress> addresses) {
-            this.rawAddresses.addAll(addresses);
+            for (InetAddress addr : addresses) {
+                this.addressBuilders.add(new UnboundInetSocketAddressBuilder(addr, this));
+            }
             return this;
         }
 
@@ -835,7 +887,7 @@ public class Cluster implements Closeable {
          *
          * @see Builder#addContactPoint
          */
-        public Builder addContactPointsWithPorts(Collection<InetSocketAddress> addresses) {
+        public Builder addContactPointsWithPorts(Collection<? extends SocketAddress> addresses) {
             this.addresses.addAll(addresses);
             return this;
         }
@@ -1171,7 +1223,7 @@ public class Cluster implements Closeable {
         private volatile boolean isFullyInit;
 
         // Initial contacts point
-        final List<InetSocketAddress> contactPoints;
+        final List<SocketAddress> contactPoints;
         final Set<SessionManager> sessions = new CopyOnWriteArraySet<SessionManager>();
 
         Metadata metadata;
@@ -1211,7 +1263,7 @@ public class Cluster implements Closeable {
         final Set<Host.StateListener> listeners;
         final Set<LatencyTracker> trackers = new CopyOnWriteArraySet<LatencyTracker>();
 
-        private Manager(String clusterName, List<InetSocketAddress> contactPoints, Configuration configuration, Collection<Host.StateListener> listeners) {
+        private Manager(String clusterName, List<SocketAddress> contactPoints, Configuration configuration, Collection<Host.StateListener> listeners) {
             this.clusterName = clusterName == null ? generateClusterName() : clusterName;
             this.configuration = configuration;
             this.contactPoints = contactPoints;
@@ -1249,7 +1301,7 @@ public class Cluster implements Closeable {
             this.scheduledTasksExecutor.scheduleWithFixedDelay(new CleanupIdleConnectionsTask(), 10, 10, TimeUnit.SECONDS);
 
 
-            for (InetSocketAddress address : contactPoints) {
+            for (SocketAddress address : contactPoints) {
                 // We don't want to signal -- call onAdd() -- because nothing is ready
                 // yet (loadbalancing policy, control connection, ...). All we want is
                 // create the Host object so we can initialize the control connection.
@@ -2082,7 +2134,7 @@ public class Cluster implements Closeable {
             switch (event.type) {
                 case TOPOLOGY_CHANGE:
                     ProtocolEvent.TopologyChange tpc = (ProtocolEvent.TopologyChange)event;
-                    InetSocketAddress tpAddr = translateAddress(tpc.node.getAddress());
+                    SocketAddress tpAddr = translateAddress(tpc.node.getAddress());
                     switch (tpc.change) {
                         case NEW_NODE:
                             final Host newHost = metadata.add(tpAddr);
@@ -2120,7 +2172,7 @@ public class Cluster implements Closeable {
                     break;
                 case STATUS_CHANGE:
                     ProtocolEvent.StatusChange stc = (ProtocolEvent.StatusChange)event;
-                    InetSocketAddress stAddr = translateAddress(stc.node.getAddress());
+                    SocketAddress stAddr = translateAddress(stc.node.getAddress());
                     switch (stc.status) {
                         case UP:
                             final Host hostUp = metadata.getHost(stAddr);
