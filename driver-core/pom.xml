@@ -74,6 +74,8 @@
       <groupId>io.netty</groupId>
       <artifactId>netty-transport-native-epoll</artifactId>
       <version>${netty.version}</version>
+      <!-- force the linux one. It has the epoll classes we are interested in from a compile-perspective -->
+      <classifier>linux-x86_64</classifier>
       <optional>true</optional>
     </dependency>
 
@@ -302,9 +304,6 @@
                 <ipprefix>${ipprefix}</ipprefix>
                 <com.datastax.driver.NEW_NODE_DELAY_SECONDS>60</com.datastax.driver.NEW_NODE_DELAY_SECONDS>
               </systemPropertyVariables>
-              <classpathDependencyExcludes>
-                <classpathDependencyExcludes>io.netty:netty-transport-native-epoll</classpathDependencyExcludes>
-              </classpathDependencyExcludes>
               <!--May be needed for debugging-->
               <!--<forkMode>never</forkMode>-->
             </configuration>
@@ -331,9 +330,6 @@
                 <cassandra.version>${cassandra.version}</cassandra.version>
                 <ipprefix>${ipprefix}</ipprefix>
               </systemPropertyVariables>
-              <classpathDependencyExcludes>
-                <classpathDependencyExcludes>io.netty:netty-transport-native-epoll</classpathDependencyExcludes>
-              </classpathDependencyExcludes>
             </configuration>
           </plugin>
         </plugins>
@@ -358,9 +354,6 @@
                 <cassandra.version>${cassandra.version}</cassandra.version>
                 <ipprefix>${ipprefix}</ipprefix>
               </systemPropertyVariables>
-              <classpathDependencyExcludes>
-                <classpathDependencyExcludes>io.netty:netty-transport-native-epoll</classpathDependencyExcludes>
-              </classpathDependencyExcludes>
             </configuration>
           </plugin>
         </plugins>
@@ -385,9 +378,6 @@
                 <cassandra.version>${cassandra.version}</cassandra.version>
                 <ipprefix>${ipprefix}</ipprefix>
               </systemPropertyVariables>
-              <classpathDependencyExcludes>
-                <classpathDependencyExcludes>io.netty:netty-transport-native-epoll</classpathDependencyExcludes>
-              </classpathDependencyExcludes>
             </configuration>
           </plugin>
         </plugins>
@@ -412,10 +402,7 @@
                 <cassandra.version>${cassandra.version}</cassandra.version>
                 <ipprefix>${ipprefix}</ipprefix>
               </systemPropertyVariables>
-              <classpathDependencyExcludes>
-                <classpathDependencyExcludes>io.netty:netty-transport-native-epoll</classpathDependencyExcludes>
-              </classpathDependencyExcludes>
-            </configuration>
+`            </configuration>
           </plugin>
         </plugins>
       </build>
