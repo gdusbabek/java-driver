@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <metadata>
   <groupId>com.datastax.cassandra</groupId>
-  <artifactId>cassandra-driver-parent</artifactId>
+  <artifactId>cassandra-driver-core</artifactId>
   <versioning>
     <release>3.0.0-SNAPSHOT-domain</release>
     <versions>
       <version>3.0.0-SNAPSHOT-domain</version>
     </versions>
-    <lastUpdated>20151216172410</lastUpdated>
+    <lastUpdated>20151216172430</lastUpdated>
   </versioning>
 </metadata>
